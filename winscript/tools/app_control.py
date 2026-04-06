@@ -62,3 +62,24 @@ def get_running_apps() -> str:
         return "\n".join(f"[PID {w['pid']}] {w['title']}" for w in windows)
     except Exception as e:
         return f"ERROR listing windows: {str(e)}"
+
+def wait_for_window(title_hint: str, timeout_seconds: int = 10) -> str:
+    """Wait for a window to appear. Important for slow-loading applications.
+    Example: wait_for_window("Notepad", 5)"""
+    args = {"title_hint": title_hint, "timeout_seconds": timeout_seconds}
+    try:
+        start_time = time.time()
+        while time.time() - start_time < timeout_seconds:
+            window = find_window(title_hint)
+            if window is not None:
+                guard.record_success("wait_for_window", args)
+                return f"Window appeared: {window.window_text()}"
+            time.sleep(0.5)
+        
+        guard.record_failure("wait_for_window", args)
+        return f"ERROR: Window '{title_hint}' did not appear within {timeout_seconds}s"
+    except WinScriptMaxRetriesError:
+        raise
+    except Exception as e:
+        guard.record_failure("wait_for_window", args)
+        return f"ERROR waiting for window: {str(e)}"

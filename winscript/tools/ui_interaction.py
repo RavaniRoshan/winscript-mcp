@@ -160,3 +160,19 @@ def get_ui_tree(app_title: str, depth: int = 3) -> str:
     except Exception as e:
         guard.record_failure("get_ui_tree", args)
         return f"ERROR getting UI tree: {str(e)}"
+
+def coordinate_click(x: int, y: int) -> str:
+    """Click exactly at (x, y) coordinates. Useful for Electron/UWP apps with poor accessibility trees.
+    Example: coordinate_click(500, 300)"""
+    args = {"x": x, "y": y}
+    try:
+        if pywinauto is None:
+            raise ImportError("pywinauto is not available")
+        pywinauto.mouse.click(button='left', coords=(x, y))
+        guard.record_success("coordinate_click", args)
+        return f"Clicked at ({x}, {y})"
+    except WinScriptMaxRetriesError:
+        raise
+    except Exception as e:
+        guard.record_failure("coordinate_click", args)
+        return f"ERROR clicking at ({x}, {y}): {str(e)}"
