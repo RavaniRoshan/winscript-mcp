@@ -1,0 +1,6 @@
+fastmcp
+pywinauto
+pywin32
+uiautomation
+mss
+Pillow

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "winscript": {
+      "command": "python",
+      "args": [
+        "/home/roshandamm/winscript/winscript-mcp/winscript/server.py"
+      ]
+    }
+  }
+}
