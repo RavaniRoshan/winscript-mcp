@@ -27,6 +27,14 @@ from winscript.core.workflow import recorder, Workflow, WORKFLOW_DIR
 from winscript.core.replay_engine import register_tool, replay_workflow
 from winscript.core.audit import log_action, query_log, get_failure_summary
 
+from winscript.intents import (
+    open_latest_file,
+    send_email_with_content,
+    find_in_folder,
+    read_active_document,
+    summarize_screen,
+)
+
 mcp = FastMCP(
     name="winscript",
     version="0.1.0"
@@ -189,6 +197,13 @@ mcp.tool()(audited("workflow_record_discard", workflow_record_discard))
 mcp.tool()(audited("workflow_replay", workflow_replay))
 mcp.tool()(audited("workflow_list", workflow_list))
 mcp.tool()(audited("workflow_delete", workflow_delete))
+
+# Intents
+mcp.tool()(audited("open_latest_file", open_latest_file))
+mcp.tool()(audited("send_email_with_content", send_email_with_content))
+mcp.tool()(audited("find_in_folder", find_in_folder))
+mcp.tool()(audited("read_active_document", read_active_document))
+mcp.tool()(audited("summarize_screen", summarize_screen))
 
 # Register tools for replay
 for name, fn in [
