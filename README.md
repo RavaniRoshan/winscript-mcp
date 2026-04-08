@@ -78,7 +78,7 @@ Edit your `%APPDATA%\Claude\claude_desktop_config.json` to include the WinScript
 
 ---
 
-## ⚡ Core Capabilities (28 Tools)
+## ⚡ Core Capabilities (52 Tools)
 
 WinScript provides a comprehensive, battle-tested toolset for deep desktop integration:
 
@@ -90,6 +90,9 @@ WinScript provides a comprehensive, battle-tested toolset for deep desktop integ
 | 📁 **File System** | `read_file_text`, `write_file_text`, `list_dir`, `move_file`, `copy_file`, `delete_file`, `file_exists` | Safe, sandboxed local file and directory manipulation. |
 | 📸 **Screen & Clipboard** | `take_screenshot`, `get_active_window`, `get_clipboard`, `set_clipboard` | Instantly pipe base64 inline screenshots to Vision models or modify clipboard state. |
 | 🐚 **Shell** | `run_powershell` | The ultimate escape hatch for admin-level operations and process queries. |
+| 🔌 **Adapters** | `excel_*`, `outlook_*`, `chrome_*`, `explorer_*`, `notepad_*` | High-level semantic interfaces for common applications. |
+| 🔄 **State Diffing** | `get_state_snapshot` | Mutating tools automatically return a computed `StateDelta` (e.g. `Active window changed: '' → 'Notepad' | Duration: 2100ms`). |
+| 🤖 **Workflows** | `workflow_record_start`, `workflow_record_stop`, `workflow_replay`, `workflow_list`, `workflow_delete` | The "macro compiler for agents." Record any multi-step sequence and replay it on demand. |
 
 ---
 
