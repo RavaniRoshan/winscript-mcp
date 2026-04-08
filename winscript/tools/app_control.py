@@ -3,55 +3,67 @@ import time
 from winscript.core.window_resolver import resolve_app_exe, find_window, get_all_windows
 from winscript.core.retry_guard import guard
 from winscript.core.errors import WinScriptMaxRetriesError
+from winscript.core.state_diff import StateCapture
 
 def open_app(name: str, wait_seconds: float = 2.0) -> str:
     """Open a Windows app by name or alias. wait_seconds: pause after launch."""
     args = {"name": name}
-    try:
-        exe = resolve_app_exe(name)
-        subprocess.Popen(exe)
-        time.sleep(wait_seconds)
-        guard.record_success("open_app", args)
-        return f"Opened {name} ({exe})"
-    except WinScriptMaxRetriesError:
-        raise
-    except Exception as e:
-        guard.record_failure("open_app", args)
-        return f"ERROR opening {name}: {str(e)}"
+    with StateCapture("open_app", args) as capture:
+        try:
+            exe = resolve_app_exe(name)
+            subprocess.Popen(exe)
+            time.sleep(wait_seconds)
+            guard.record_success("open_app", args)
+            result = f"Opened {name} ({exe})"
+        except WinScriptMaxRetriesError:
+            raise
+        except Exception as e:
+            guard.record_failure("open_app", args)
+            result = f"ERROR opening {name}: {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"
 
 def close_app(title_hint: str) -> str:
     """Close a window by title (partial match)."""
     args = {"title_hint": title_hint}
-    try:
-        window = find_window(title_hint)
-        if window is None:
+    with StateCapture("close_app", args) as capture:
+        try:
+            window = find_window(title_hint)
+            if window is None:
+                guard.record_failure("close_app", args)
+                result = f"ERROR: No window found matching '{title_hint}'"
+            else:
+                window.close()
+                guard.record_success("close_app", args)
+                result = f"Closed window: {window.window_text()}"
+        except WinScriptMaxRetriesError:
+            raise
+        except Exception as e:
             guard.record_failure("close_app", args)
-            return f"ERROR: No window found matching '{title_hint}'"
-        window.close()
-        guard.record_success("close_app", args)
-        return f"Closed window: {window.window_text()}"
-    except WinScriptMaxRetriesError:
-        raise
-    except Exception as e:
-        guard.record_failure("close_app", args)
-        return f"ERROR closing '{title_hint}': {str(e)}"
+            result = f"ERROR closing '{title_hint}': {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"
 
 def focus_app(title_hint: str) -> str:
     """Bring a window to the foreground by title (partial match)."""
     args = {"title_hint": title_hint}
-    try:
-        window = find_window(title_hint)
-        if window is None:
+    with StateCapture("focus_app", args) as capture:
+        try:
+            window = find_window(title_hint)
+            if window is None:
+                guard.record_failure("focus_app", args)
+                result = f"ERROR: No window found matching '{title_hint}'"
+            else:
+                window.set_focus()
+                guard.record_success("focus_app", args)
+                result = f"Focused: {window.window_text()}"
+        except WinScriptMaxRetriesError:
+            raise
+        except Exception as e:
             guard.record_failure("focus_app", args)
-            return f"ERROR: No window found matching '{title_hint}'"
-        window.set_focus()
-        guard.record_success("focus_app", args)
-        return f"Focused: {window.window_text()}"
-    except WinScriptMaxRetriesError:
-        raise
-    except Exception as e:
-        guard.record_failure("focus_app", args)
-        return f"ERROR focusing '{title_hint}': {str(e)}"
+            result = f"ERROR focusing '{title_hint}': {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"
 
 def get_running_apps() -> str:
     """List all open windows with titles and PIDs."""

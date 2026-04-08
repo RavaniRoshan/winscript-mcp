@@ -2,6 +2,8 @@ import sys
 from winscript.core.window_resolver import find_window
 from winscript.core.retry_guard import guard
 from winscript.core.errors import WinScriptMaxRetriesError
+from winscript.core.selector import find_element
+from winscript.core.state_diff import StateCapture
 
 try:
     import pywinauto
@@ -22,60 +24,55 @@ KEY_MAP = {
     "f5": "{F5}", "f6": "{F6}",
 }
 
-def _find_element(window, element_name: str):
-    for strategy in [
-        lambda: window.child_window(title=element_name, found_index=0),
-        lambda: window.child_window(auto_id=element_name, found_index=0),
-        lambda: window.child_window(title_re=f".*{element_name}.*", found_index=0),
-    ]:
-        try:
-            el = strategy()
-            el.wait("exists", timeout=2)
-            return el
-        except Exception:
-            continue
-    return None
-
 def click(app_title: str, element_name: str) -> str:
     """Click a UI element by name in a window.
     Example: click("Notepad", "File"), click("Chrome", "Address bar")"""
     args = {"app_title": app_title, "element_name": element_name}
-    try:
-        window = find_window(app_title)
-        if window is None:
+    with StateCapture("click", args) as capture:
+        try:
+            window = find_window(app_title)
+            if window is None:
+                guard.record_failure("click", args)
+                result = f"ERROR: No window '{app_title}'"
+            else:
+                element_result = find_element(window, element_name)
+                if element_result is None:
+                    guard.record_failure("click", args)
+                    result = f"ERROR: No element '{element_name}' in '{app_title}'"
+                else:
+                    element_result.element.click_input()
+                    guard.record_success("click", args)
+                    result = f"Clicked '{element_name}' in '{app_title}' [via {element_result.layer_used}, confidence {element_result.confidence:.2f}]"
+        except WinScriptMaxRetriesError:
+            raise
+        except Exception as e:
             guard.record_failure("click", args)
-            return f"ERROR: No window '{app_title}'"
-        element = _find_element(window, element_name)
-        if element is None:
-            guard.record_failure("click", args)
-            return f"ERROR: No element '{element_name}' in '{app_title}'"
-        element.click_input()
-        guard.record_success("click", args)
-        return f"Clicked '{element_name}' in '{app_title}'"
-    except WinScriptMaxRetriesError:
-        raise
-    except Exception as e:
-        guard.record_failure("click", args)
-        return f"ERROR clicking: {str(e)}"
+            result = f"ERROR clicking: {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"
 
 def type_text(app_title: str, text: str) -> str:
     """Type text into the focused element of a window.
     Example: type_text("Notepad", "Hello world")"""
     args = {"app_title": app_title, "text": text[:50]}
-    try:
-        window = find_window(app_title)
-        if window is None:
+    with StateCapture("type_text", args) as capture:
+        try:
+            window = find_window(app_title)
+            if window is None:
+                guard.record_failure("type_text", args)
+                result = f"ERROR: No window '{app_title}'"
+            else:
+                window.set_focus()
+                window.type_keys(text, with_spaces=True)
+                guard.record_success("type_text", args)
+                result = f"Typed {len(text)} chars into '{app_title}'"
+        except WinScriptMaxRetriesError:
+            raise
+        except Exception as e:
             guard.record_failure("type_text", args)
-            return f"ERROR: No window '{app_title}'"
-        window.set_focus()
-        window.type_keys(text, with_spaces=True)
-        guard.record_success("type_text", args)
-        return f"Typed {len(text)} chars into '{app_title}'"
-    except WinScriptMaxRetriesError:
-        raise
-    except Exception as e:
-        guard.record_failure("type_text", args)
-        return f"ERROR typing: {str(e)}"
+            result = f"ERROR typing: {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"
 
 def read_text(app_title: str, element_name: str = "") -> str:
     """Read text from a UI element. If element_name empty, reads window title.
@@ -87,15 +84,17 @@ def read_text(app_title: str, element_name: str = "") -> str:
             guard.record_failure("read_text", args)
             return f"ERROR: No window '{app_title}'"
         if not element_name:
-            result = window.window_text()
+            result_text = window.window_text()
+            layer_info = ""
         else:
-            element = _find_element(window, element_name)
-            if element is None:
+            result = find_element(window, element_name)
+            if result is None:
                 guard.record_failure("read_text", args)
                 return f"ERROR: No element '{element_name}'"
-            result = element.window_text()
+            result_text = result.element.window_text()
+            layer_info = f" [via {result.layer_used}, confidence {result.confidence:.2f}]"
         guard.record_success("read_text", args)
-        return result
+        return str(result_text) + layer_info
     except WinScriptMaxRetriesError:
         raise
     except Exception as e:
@@ -107,22 +106,25 @@ def press_key(key: str, app_title: str = "") -> str:
     Supported: enter, tab, ctrl+c, ctrl+s, alt+f4, f1-f6, etc.
     Example: press_key("ctrl+s", "Notepad")"""
     args = {"key": key, "app_title": app_title}
-    try:
-        if app_title:
-            window = find_window(app_title)
-            if window:
-                window.set_focus()
-        mapped = KEY_MAP.get(key.lower(), key)
-        if pw_send_keys is None:
-             raise ImportError("pywinauto is not available")
-        pw_send_keys(mapped)
-        guard.record_success("press_key", args)
-        return f"Pressed '{key}'"
-    except WinScriptMaxRetriesError:
-        raise
-    except Exception as e:
-        guard.record_failure("press_key", args)
-        return f"ERROR pressing '{key}': {str(e)}"
+    with StateCapture("press_key", args) as capture:
+        try:
+            if app_title:
+                window = find_window(app_title)
+                if window:
+                    window.set_focus()
+            mapped = KEY_MAP.get(key.lower(), key)
+            if pw_send_keys is None:
+                 raise ImportError("pywinauto is not available")
+            pw_send_keys(mapped)
+            guard.record_success("press_key", args)
+            result = f"Pressed '{key}'"
+        except WinScriptMaxRetriesError:
+            raise
+        except Exception as e:
+            guard.record_failure("press_key", args)
+            result = f"ERROR pressing '{key}': {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"
 
 def get_ui_tree(app_title: str, depth: int = 3) -> str:
     """Get accessible UI element tree of a window.
@@ -165,14 +167,17 @@ def coordinate_click(x: int, y: int) -> str:
     """Click exactly at (x, y) coordinates. Useful for Electron/UWP apps with poor accessibility trees.
     Example: coordinate_click(500, 300)"""
     args = {"x": x, "y": y}
-    try:
-        if pywinauto is None:
-            raise ImportError("pywinauto is not available")
-        pywinauto.mouse.click(button='left', coords=(x, y))
-        guard.record_success("coordinate_click", args)
-        return f"Clicked at ({x}, {y})"
-    except WinScriptMaxRetriesError:
-        raise
-    except Exception as e:
-        guard.record_failure("coordinate_click", args)
-        return f"ERROR clicking at ({x}, {y}): {str(e)}"
+    with StateCapture("coordinate_click", args) as capture:
+        try:
+            if pywinauto is None:
+                raise ImportError("pywinauto is not available")
+            pywinauto.mouse.click(button='left', coords=(x, y))
+            guard.record_success("coordinate_click", args)
+            result = f"Clicked at ({x}, {y})"
+        except WinScriptMaxRetriesError:
+            raise
+        except Exception as e:
+            guard.record_failure("coordinate_click", args)
+            result = f"ERROR clicking at ({x}, {y}): {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"

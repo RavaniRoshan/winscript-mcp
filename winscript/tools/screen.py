@@ -19,6 +19,7 @@ except ImportError:
 
 from winscript.core.retry_guard import guard
 from winscript.core.errors import WinScriptMaxRetriesError
+from winscript.core.state_diff import StateCapture
 
 def take_screenshot(region: dict = None) -> str:
     """Capture screen and return as base64 PNG string.
@@ -75,15 +76,19 @@ def get_clipboard() -> str:
 def set_clipboard(text: str) -> str:
     """Set clipboard to given text.
     Example: set_clipboard("Hello world")"""
-    try:
-        if win32clipboard is None:
-            raise ImportError("win32clipboard not available")
-        win32clipboard.OpenClipboard()
+    args = {"text": text[:50]}
+    with StateCapture("set_clipboard", args) as capture:
         try:
-            win32clipboard.EmptyClipboard()
-            win32clipboard.SetClipboardData(win32con.CF_UNICODETEXT, text)
-        finally:
-            win32clipboard.CloseClipboard()
-        return f"Clipboard set ({len(text)} chars)"
-    except Exception as e:
-        return f"ERROR setting clipboard: {str(e)}"
+            if win32clipboard is None:
+                raise ImportError("win32clipboard not available")
+            win32clipboard.OpenClipboard()
+            try:
+                win32clipboard.EmptyClipboard()
+                win32clipboard.SetClipboardData(win32con.CF_UNICODETEXT, text)
+            finally:
+                win32clipboard.CloseClipboard()
+            result = f"Clipboard set ({len(text)} chars)"
+        except Exception as e:
+            result = f"ERROR setting clipboard: {str(e)}"
+    delta_summary = capture.delta.to_summary() if capture.delta else ""
+    return f"{result} | {delta_summary}"

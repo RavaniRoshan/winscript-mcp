@@ -54,6 +54,7 @@ Get started in three simple steps:
 ```bash
 pip install -r requirements.txt
 ```
+*For OCR fallback: install Tesseract https://github.com/tesseract-ocr/tesseract*
 
 ### 2. Run the Server
 ```bash
