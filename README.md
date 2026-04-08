@@ -1,128 +1,424 @@
-# 🚀 WinScript
+<div align="center">
 
-<p align="center">
-  <b>AppleScript for Windows — as a Model Context Protocol (MCP) server.</b>
-</p>
-
-<p align="center">
-  <img alt="Python" src="https://img.shields.io/badge/python-3.9%2B-blue.svg">
-  <img alt="MCP" src="https://img.shields.io/badge/MCP-Ready-brightgreen">
-  <img alt="Windows Only" src="https://img.shields.io/badge/Platform-Windows-0078D6">
-</p>
-
----
-
-## 🌟 The Vision
-
-Control any Windows application from an AI agent seamlessly. WinScript acts as the native bridge between intelligent agents (like Claude or local LLMs) and your local Windows environment. 
-
-Whether it's manipulating Excel cells, clicking through legacy UIs, automating Outlook emails, or executing PowerShell escape hatches—WinScript handles it with zero manual interaction.
-
----
-
-## 🏗️ Architecture
-
-WinScript operates over standard MCP (stdio) to provide a clean API boundary over Windows' fragmented automation primitives:
-
-```text
-AI Agent (Claude / local LLM)
-        │
-        │  MCP protocol (stdio)
-        ▼
-┌──────────────────────────────┐
-│       WinScript MCP Server   │  ← winscript/server.py
-│       FastMCP + Python       │
-└──────┬───────────────────────┘
-       │
-  ┌────┼──────────────┐
-  ▼    ▼              ▼
-pywinauto  win32com  subprocess
-(UI ctrl) (COM/Office) (PowerShell)
-  │         │
-  └────┬────┘
-       ▼
-Any Windows App / System
+```
+██╗    ██╗██╗███╗   ██╗███████╗ ██████╗██████╗ ██╗██████╗ ████████╗
+██║    ██║██║████╗  ██║██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝
+██║ █╗ ██║██║██╔██╗ ██║███████╗██║     ██████╔╝██║██████╔╝   ██║   
+██║███╗██║██║██║╚██╗██║╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   
+╚███╔███╔╝██║██║ ╚████║███████║╚██████╗██║  ██║██║██║        ██║   
+ ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   
 ```
 
+**AppleScript for Windows. Built for AI agents.**
+
+`pip install winscript` · Windows 10/11 · Python 3.10+ · MCP Protocol
+
+[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
+[![MCP](https://img.shields.io/badge/protocol-MCP-orange.svg)](https://modelcontextprotocol.io)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Tools](https://img.shields.io/badge/tools-59-purple.svg)](#tools)
+
+</div>
+
 ---
 
-## 🛠️ Installation & Setup
+macOS has AppleScript.  
+Windows had nothing clean for AI agents.  
+Until now.
 
-Get started in three simple steps:
+WinScript is a **state-aware, replayable, audited** Windows automation server for AI agents. It wraps 4 fragmented Windows automation primitives — UI Automation, COM, Win32, and OCR — into a single MCP server that any agent can call.
 
-### 1. Install Dependencies
+Not a wrapper. Not a toy. Infrastructure.
+
+---
+
+## The difference
+
+Every other Windows automation tool gives you actions.  
+WinScript gives you **actions + state**.
+
+```
+# What others give you:
+click("Submit")
+→ "Clicked Submit"
+
+# What WinScript gives you:
+click("Submit")
+→ "Clicked 'Submit' via uia_name [confidence 1.0] |
+   Active window: 'Form' → 'Confirmation' |
+   New windows: ['Success Dialog'] |
+   Duration: 312ms"
+```
+
+You don't just know what you did. You know what changed.
+
+---
+
+## Install
+
 ```bash
-pip install -r requirements.txt
+pip install winscript
 ```
-*For OCR fallback: install Tesseract https://github.com/tesseract-ocr/tesseract*
 
-### 2. Run the Server
+For OCR fallback (Layer 4 element detection):
 ```bash
-python winscript/server.py
+# Install Tesseract: https://github.com/tesseract-ocr/tesseract
+# Then:
+pip install pytesseract
 ```
 
-### 3. Wire into Claude Desktop
-Edit your `%APPDATA%\Claude\claude_desktop_config.json` to include the WinScript server using the absolute path to your script:
+---
+
+## Wire into Claude Desktop
 
 ```json
 {
   "mcpServers": {
     "winscript": {
       "command": "python",
-      "args": ["/home/roshandamm/winscript/winscript-mcp/winscript/server.py"]
+      "args": ["-m", "winscript.server"]
     }
   }
 }
 ```
-*Restart Claude Desktop, and the WinScript tool suite will automatically appear.*
+
+Restart Claude Desktop. 59 tools appear automatically.
 
 ---
 
-## ⚡ Core Capabilities (52 Tools)
+## Five things that make WinScript different
 
-WinScript provides a comprehensive, battle-tested toolset for deep desktop integration:
+### 1. Five-layer selector fallback chain
 
-| Category | Tools | Description |
-| :--- | :--- | :--- |
-| 🪟 **App Control** | `open_app`, `close_app`, `focus_app`, `get_running_apps`, `wait_for_window` | Open, close, and manage foreground states, with resilient polling for slow-loading software. |
-| 🖱️ **UI Interaction** | `click`, `coordinate_click`, `type_text`, `read_text`, `press_key`, `get_ui_tree` | Deep semantic UI tree interaction, falling back to raw coordinate pixel clicks when required. |
-| 📊 **COM Office** | `excel_read_cell`, `excel_write_cell`, `excel_read_range`, `outlook_send_email`, `outlook_read_inbox` | Native integration with Microsoft Office. Zero zombie processes thanks to aggressive background cleanup. |
-| 📁 **File System** | `read_file_text`, `write_file_text`, `list_dir`, `move_file`, `copy_file`, `delete_file`, `file_exists` | Safe, sandboxed local file and directory manipulation. |
-| 📸 **Screen & Clipboard** | `take_screenshot`, `get_active_window`, `get_clipboard`, `set_clipboard` | Instantly pipe base64 inline screenshots to Vision models or modify clipboard state. |
-| 🐚 **Shell** | `run_powershell` | The ultimate escape hatch for admin-level operations and process queries. |
-| 🔌 **Adapters** | `excel_*`, `outlook_*`, `chrome_*`, `explorer_*`, `notepad_*` | High-level semantic interfaces for common applications. |
-| 🔄 **State Diffing** | `get_state_snapshot` | Mutating tools automatically return a computed `StateDelta` (e.g. `Active window changed: '' → 'Notepad' | Duration: 2100ms`). |
-| 🤖 **Workflows** | `workflow_record_start`, `workflow_record_stop`, `workflow_replay`, `workflow_list`, `workflow_delete` | The "macro compiler for agents." Record any multi-step sequence and replay it on demand. |
+Other tools fail when the UI tree is bad (Electron apps, UWP, legacy Win32).  
+WinScript tries 5 strategies before giving up.
+
+```
+Layer 1 → UIA by element name       (fast, exact)
+Layer 2 → UIA by automation_id      (for apps that label controls)
+Layer 3 → UIA fuzzy role match      (partial name, control type)
+Layer 4 → OCR scan + bounding box   (when UI tree is broken)
+Layer 5 → Raw coordinates           (click("x=412,y=308"))
+```
+
+Every tool call tells you which layer succeeded:
+```
+"Clicked 'Login' in 'Slack' [via ocr, confidence 0.91]"
+```
+
+### 2. State diffing after every action
+
+Before you act, WinScript snapshots the desktop.  
+After you act, it snapshots again and diffs.
+
+```python
+# The agent knows what actually happened:
+open_app("excel")
+→ "Opened Excel | Active window: '' → 'Book1 - Excel' | 
+   New windows: ['Microsoft Excel - Book1'] | Duration: 2140ms"
+
+type_text("Notepad", "hello")
+→ "Typed 5 chars | No window change detected | Duration: 89ms"
+```
+
+No more "did it work?" loops.
+
+### 3. Workflow recorder and replay
+
+Record any successful multi-step sequence. Replay it on demand.  
+No human-written macros. No brittle scripts.
+
+```python
+# Record:
+workflow_record_start("daily_report", "Opens report and emails it")
+open_latest_file("C:/reports", "xlsx")
+read_active_document()
+send_email_with_content("team@co.com", "Daily Report", "clipboard")
+workflow_record_stop()
+→ "Workflow 'daily_report' saved: 3 steps"
+
+# Replay any time:
+workflow_replay("daily_report")
+→ "Step 1 ✓ open_latest_file → Opened q1_2026.xlsx [2100ms]
+   Step 2 ✓ read_active_document → [clipboard content] [340ms]
+   Step 3 ✓ send_email_with_content → Email sent [890ms]"
+
+# Preview before running:
+workflow_replay("daily_report", dry_run=True)
+```
+
+### 4. Semantic intent layer
+
+Five high-level intents so agents don't have to think in clicks.
+
+```python
+open_latest_file("C:/reports", "xlsx")     # Find + open newest xlsx
+send_email_with_content("a@b.com", "Re", "clipboard")  # Clipboard → email
+find_in_folder("C:/docs", "invoice", "pdf")  # Find matching files
+read_active_document()                      # Select-all copy current doc
+summarize_screen()                          # Screenshot → agent vision
+```
+
+### 5. Full audit log + local memory
+
+Every action, input, output, state delta, selector layer, and failure logged to `~/.winscript/audit.db`.
+
+```python
+get_audit_log(10)
+→ "[14:23:01] ✓ open_app({'name':'notepad'}) → Opened notepad [2100ms]
+   [14:23:03] ✓ type_text({'text':'hello'}) → Typed 5 chars [89ms]
+   [14:23:11] ✗ click({'element':'Submit'}) → ERROR: No element found [412ms]"
+
+get_failure_report()
+→ "click: 3/12 failures (25%) | avg 380ms
+   open_app: 0/8 failures (0%) | avg 2100ms"
+```
+
+And memory persists across sessions:
+
+```python
+what_files_have_i_opened(5, "xlsx")
+→ "C:/reports/q1_2026.xlsx — opened 4x | last: 14:23 08/04"
+
+what_did_i_do(5)
+→ "[14:23] open_app → Opened notepad
+   [14:22] excel_read_cell → 47230.5
+   [14:21] outlook_send_email → Email sent to team@co.com"
+```
 
 ---
 
-## 🛡️ Resilience & Error Handling
+## All 59 tools
 
-Windows automation is notoriously brittle. WinScript is built for reality:
+<details>
+<summary><b>App Control (4)</b></summary>
 
-- **Graceful Failures:** Tools never crash the server. They return descriptive `"ERROR: ..."` strings to the agent so it can strategize a new approach.
-- **Circuit Breaker:** After 5 identical consecutive tool failures, a `WinScriptMaxRetriesError` is raised (Hard Stop) to prevent runaway LLM loops.
-- **Zombie Cleanup:** The server aggressively purges orphaned `EXCEL.EXE` and `OUTLOOK.EXE` processes on startup to prevent COM object memory leaks.
+| Tool | What it does |
+|---|---|
+| `open_app(name)` | Open any app by name or alias |
+| `close_app(title_hint)` | Close by partial window title |
+| `focus_app(title_hint)` | Bring to foreground |
+| `get_running_apps()` | List all open windows + PIDs |
+
+</details>
+
+<details>
+<summary><b>UI Interaction (5)</b></summary>
+
+| Tool | What it does |
+|---|---|
+| `click(app_title, element_name)` | Click element — 5-layer fallback |
+| `type_text(app_title, text)` | Type into focused element |
+| `read_text(app_title, element_name)` | Read text from element |
+| `press_key(key, app_title)` | Keyboard shortcuts |
+| `get_ui_tree(app_title, depth)` | Discover all UI elements |
+
+</details>
+
+<details>
+<summary><b>COM Office (5)</b></summary>
+
+| Tool | What it does |
+|---|---|
+| `excel_read_cell(filepath, sheet, cell)` | Read one cell |
+| `excel_write_cell(filepath, sheet, cell, value)` | Write one cell + save |
+| `excel_read_range(filepath, sheet, start, end)` | Read range as CSV |
+| `outlook_send_email(to, subject, body)` | Send email |
+| `outlook_read_inbox(count)` | Read N recent emails |
+
+</details>
+
+<details>
+<summary><b>File System (7)</b></summary>
+
+`read_file_text` · `write_file_text` · `list_dir` · `move_file` · `copy_file` · `delete_file` · `file_exists`
+
+</details>
+
+<details>
+<summary><b>Screen + Clipboard (4)</b></summary>
+
+| Tool | What it does |
+|---|---|
+| `take_screenshot(region)` | Base64 PNG — agent sees your screen |
+| `get_active_window()` | Current focused window title |
+| `get_clipboard()` | Read clipboard |
+| `set_clipboard(text)` | Write clipboard |
+
+</details>
+
+<details>
+<summary><b>App Adapters (15)</b></summary>
+
+Typed semantic APIs for specific apps. No more clicking blind.
+
+```python
+# Excel
+excel_open(filepath)  ·  excel_save()  ·  excel_close(save)
+
+# Chrome
+chrome_open(url)  ·  chrome_navigate(url)  ·  chrome_get_url()
+chrome_get_title()  ·  chrome_new_tab()  ·  chrome_close_tab()
+chrome_find_on_page(text)
+
+# Notepad
+notepad_open(filepath)  ·  notepad_type(text)
+notepad_save()  ·  notepad_close(save)
+
+# Explorer
+explorer_open(path)  ·  explorer_navigate(path)
+
+# Outlook
+outlook_open()
+```
+
+</details>
+
+<details>
+<summary><b>Workflow Recorder + Replay (6)</b></summary>
+
+```python
+workflow_record_start(name, description)
+workflow_record_stop()
+workflow_record_discard()
+workflow_replay(name, dry_run)
+workflow_list()
+workflow_delete(name)
+```
+
+</details>
+
+<details>
+<summary><b>Semantic Intents (5)</b></summary>
+
+```python
+open_latest_file(folder, extension)
+send_email_with_content(to, subject, content_source)
+find_in_folder(folder, search_term, extension)
+read_active_document()
+summarize_screen()
+```
+
+</details>
+
+<details>
+<summary><b>Audit + Memory + State (10)</b></summary>
+
+```python
+# Audit
+get_audit_log(limit, tool_filter)
+get_failure_report()
+
+# Memory
+what_windows_have_i_seen(limit)
+what_files_have_i_opened(limit, extension)
+what_did_i_do(limit)
+
+# State
+get_state_snapshot()
+
+# Modes
+set_execution_mode(mode)   # "safe" | "standard"
+get_execution_mode()
+```
+
+</details>
 
 ---
 
-## 🔒 Security & Permissions
+## App aliases
 
-**WinScript is Open by Default.** 
-
-Friction kills agent usability, so we designed WinScript without an interactive auth layer. However, exposing your desktop and shell directly to an AI agent comes with inherent risks. 
-
-**Please ensure you are comfortable with the following before running:**
-- The agent has full read/write access to your user files.
-- The agent can execute arbitrary PowerShell commands.
-- The agent can send emails from your authenticated Outlook account.
+```python
+open_app("notepad")    # notepad.exe
+open_app("chrome")     # chrome.exe
+open_app("firefox")    # firefox.exe
+open_app("edge")       # msedge.exe
+open_app("excel")      # EXCEL.EXE
+open_app("word")       # WINWORD.EXE
+open_app("outlook")    # OUTLOOK.EXE
+open_app("explorer")   # explorer.exe
+open_app("terminal")   # wt.exe
+open_app("vscode")     # Code.exe
+open_app("cursor")     # Cursor.exe
+```
 
 ---
 
-## ⚠️ Known Limitations
+## Error handling
 
-> **Platform Lock:** By design, WinScript strictly targets **Windows** via `pywinauto` and Win32 COM APIs. 
-> 
-> **Electron & UWP Apps:** Applications like VS Code, Discord, or Slack often have obfuscated accessibility trees. For these, rely on the `take_screenshot` + `coordinate_click` vision loop.
-> 
-> **Permissions:** Elevated (Admin) applications cannot be automated unless the Python environment running WinScript is also launched with Administrator privileges.
+Tools return `"ERROR: ..."` strings to the agent on failure — never crash your agent.
+
+After **5 consecutive identical failures** on the same tool + args:  
+`WinScriptMaxRetriesError` is raised. Hard stop. Change your args and try again.
+
+```python
+get_failure_report()
+# See which tools are failing and why before they hit the limit
+```
+
+---
+
+## Execution modes
+
+```python
+set_execution_mode("safe")
+# Read-only: screenshots, reads, audits only
+# Blocks: write, delete, click, type, send email, open apps
+
+set_execution_mode("standard")
+# Full access (default)
+```
+
+---
+
+## Where recordings live
+
+```
+~/.winscript/
+├── audit.db          # every action ever taken
+├── memory.db         # windows, files, action history
+└── workflows/
+    ├── daily_report.json
+    └── your_workflow.json
+```
+
+Auto-purge: audit logs older than 30 days are deleted on startup.
+
+---
+
+## Limitations (honest)
+
+- **Windows only.** By design. This is not a bug.
+- **Elevated (admin) apps** cannot be automated from a non-admin process.
+- **UWP + Electron apps** have broken accessibility trees. WinScript falls back to OCR then coordinates — but complex UIs still sometimes fail.
+- **Requires Tesseract** for OCR fallback (Layer 4). Without it, WinScript skips to Layer 5.
+- **COM automation** (Excel, Outlook) requires those apps installed and licensed.
+
+---
+
+## Built on
+
+| Layer | Library |
+|---|---|
+| MCP server | FastMCP |
+| UI automation | pywinauto + uiautomation |
+| COM automation | pywin32 |
+| OCR fallback | pytesseract + Tesseract |
+| Screenshots | mss + Pillow |
+| State + memory | SQLite |
+
+---
+
+## License
+
+MIT
+
+---
+
+<div align="center">
+
+**WinScript** — 59 tools. State-aware. Replayable. Audited. Memory-backed.
+
+*Built by [Roshan Ravani](https://github.com/ravaniroshan)*
+
+</div>
