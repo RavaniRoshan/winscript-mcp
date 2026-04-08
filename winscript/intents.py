@@ -25,6 +25,8 @@ def open_latest_file(folder: str, extension: str = "*") -> str:
         latest = max(files, key=lambda f: f.stat().st_mtime)
         subprocess.Popen(["start", "", str(latest)], shell=True)
         time.sleep(1.5)
+        from winscript.core.memory import remember_file
+        remember_file(str(latest))
         return f"Opened latest file: {latest.name} (modified: {time.ctime(latest.stat().st_mtime)})"
     except Exception as e:
         return f"ERROR: {str(e)}"

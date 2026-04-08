@@ -14,6 +14,8 @@ def open_app(name: str, wait_seconds: float = 2.0) -> str:
             subprocess.Popen(exe)
             time.sleep(wait_seconds)
             guard.record_success("open_app", args)
+            from winscript.core.memory import remember_window
+            remember_window(name)
             result = f"Opened {name} ({exe})"
         except WinScriptMaxRetriesError:
             raise
@@ -56,6 +58,8 @@ def focus_app(title_hint: str) -> str:
             else:
                 window.set_focus()
                 guard.record_success("focus_app", args)
+                from winscript.core.memory import remember_window
+                remember_window(window.window_text())
                 result = f"Focused: {window.window_text()}"
         except WinScriptMaxRetriesError:
             raise

@@ -79,6 +79,8 @@ def audited(tool_name: str, fn):
                 error=error,
                 duration_ms=duration_ms,
             )
+            from winscript.core.memory import remember_action
+            remember_action(tool_name, kwargs, str(result) if result is not None else "")
         return result
     return wrapper
 
@@ -293,6 +295,53 @@ def get_execution_mode() -> str:
 
 mcp.tool()(set_execution_mode)
 mcp.tool()(get_execution_mode)
+
+
+def what_windows_have_i_seen(limit: int = 10) -> str:
+    """Recall recently seen/used windows.
+    Example: what_windows_have_i_seen()"""
+    from winscript.core.memory import recall_windows
+    import time
+    rows = recall_windows(limit)
+    if not rows:
+        return "No window memory yet."
+    lines = []
+    for r in rows:
+        ts = time.strftime("%H:%M %d/%m", time.localtime(r["last_seen"]))
+        lines.append(f"'{r['title']}' — seen {r['seen_count']}x | last: {ts}")
+    return "\n".join(lines)
+
+def what_files_have_i_opened(limit: int = 10, extension: str = "") -> str:
+    """Recall recently opened files. Filter by extension.
+    Example: what_files_have_i_opened(), what_files_have_i_opened(10,"xlsx")"""
+    from winscript.core.memory import recall_files
+    import time
+    rows = recall_files(limit, extension)
+    if not rows:
+        return "No file memory yet."
+    lines = []
+    for r in rows:
+        ts = time.strftime("%H:%M %d/%m", time.localtime(r["last_opened"]))
+        lines.append(f"{r['path']} — opened {r['open_count']}x | last: {ts}")
+    return "\n".join(lines)
+
+def what_did_i_do(limit: int = 20) -> str:
+    """Recall recent actions taken in this and previous sessions.
+    Example: what_did_i_do(), what_did_i_do(10)"""
+    from winscript.core.memory import recall_actions
+    import time
+    rows = recall_actions(limit)
+    if not rows:
+        return "No action memory yet."
+    lines = []
+    for r in rows:
+        ts = time.strftime("%H:%M:%S", time.localtime(r["timestamp"]))
+        lines.append(f"[{ts}] {r['tool']} → {r['result'][:60]}")
+    return "\n".join(lines)
+
+mcp.tool()(what_windows_have_i_seen)
+mcp.tool()(what_files_have_i_opened)
+mcp.tool()(what_did_i_do)
 
 def cleanup_orphaned_com_processes():
     """Kill orphaned Excel and Outlook processes on server startup to prevent COM object leaks."""

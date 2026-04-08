@@ -5,6 +5,8 @@ def read_file_text(path: str, max_chars: int = 10000) -> str:
     """Read text from file. Truncates at max_chars.
     Example: read_file_text("C:/docs/report.txt")"""
     try:
+        from winscript.core.memory import remember_file
+        remember_file(path)
         text = Path(path).read_text(encoding="utf-8", errors="replace")
         if len(text) > max_chars:
             text = text[:max_chars] + f"\n... [truncated at {max_chars} chars]"
@@ -16,6 +18,8 @@ def write_file_text(path: str, content: str) -> str:
     """Write text to file. Creates file and parent dirs if needed.
     Example: write_file_text("C:/docs/output.txt", "Hello world")"""
     try:
+        from winscript.core.memory import remember_file
+        remember_file(path)
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         Path(path).write_text(content, encoding="utf-8")
         return f"Written {len(content)} chars to {path}"
