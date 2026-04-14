@@ -534,6 +534,94 @@ Auto-purge: audit logs older than 30 days are deleted on startup.
 
 ---
 
+## Docker
+
+```bash
+# Pull from GitHub Container Registry
+docker run -d --name winscript -v ${HOME}/.winscript:/root/.winscript ghcr.io/roshandamm/winscript-mcp:latest
+
+# Or build from source
+git clone https://github.com/RavaniRoshan/winscript-mcp.git
+cd winscript-mcp
+docker build -t winscript:latest .
+docker run -d --name winscript -v winscript_data:/root/.winscript winscript:latest
+
+# Using Docker Compose
+docker-compose up -d
+```
+
+---
+
+## Build Claude Desktop Extension
+
+```bash
+# Windows: Double-click build-extension.bat
+# Linux/Mac: ./build-extension.sh
+```
+
+This creates `winscript.mcpb` - a one-click installable extension for Claude Desktop.
+
+**Test locally:** Double-click the .mcpb file → Claude Desktop opens → review → install
+
+---
+
+## Developer Commands
+
+```bash
+# Build package
+pip install build && python -m build
+
+# Install locally
+pip install -e .
+
+# Run tests
+pip install pytest && pytest tests/ -v
+
+# Connect to Cursor
+# Edit .cursor/mcp.json:
+{"mcpServers": {"winscript": {"command": "python", "args": ["-m", "winscript.server"]}}}
+```
+
+---
+
+## Examples
+
+### Screenshot + Vision Fallback
+For legacy apps with broken UI trees:
+1. `open_app("Legacy Inventory")`
+2. `take_screenshot()` → pass to Claude Vision
+3. `coordinate_click(x, y)` to click visually located element
+
+### Excel to Email Workflow
+1. `excel_read_range("report.xlsx", "Sheet1", "A1:D10")`
+2. `outlook_send_email("team@company.com", "Daily Report", body)`
+
+### File Triage
+1. `list_dir("C:/Downloads")`
+2. `move_file("file.pdf", "C:/Documents/")`
+
+---
+
+## Troubleshooting
+
+**"Server disconnected" errors:**
+- Ensure PYTHONPATH is set correctly in Claude Desktop config
+- Check Python path is valid
+
+**"Module not found: winscript":**
+- Run `python winscript-server.py` from the project root
+- Or use `pip install -e .` to install the package
+
+**COM automation fails (Excel/Outlook):**
+- Ensure Microsoft Office is installed and licensed
+- Run as administrator for first-time COM registration
+
+**UI elements not found:**
+- Try increasing timeout: `wait_for_window("App Name", timeout_seconds=30)`
+- Enable OCR fallback: install Tesseract and `pip install pytesseract`
+
+---
+
 ## License
 
 MIT
