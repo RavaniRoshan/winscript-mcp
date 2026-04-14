@@ -37,12 +37,12 @@ echo.
 
 REM Create build directory
 if exist "extension-build" rmdir /s /q extension-build
-mkdir extension-build\server
+mkdir extension-build
 
-REM Copy server code
-xcopy /e /i /y winscript extension-build\server\winscript >nul
-copy /y winscript-server.py extension-build\server\ >nul
-copy /y requirements.txt extension-build\server\ >nul
+REM Copy server code to root of bundle
+xcopy /e /i /y winscript extension-build\winscript >nul
+copy /y winscript-server.py extension-build\ >nul
+copy /y requirements.txt extension-build\ >nul
 
 REM Copy manifest
 copy /y manifest.json extension-build\ >nul

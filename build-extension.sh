@@ -30,14 +30,14 @@ fi
 echo "📦 Building WinScript extension..."
 echo ""
 
-# Create server directory structure
+# Create build directory structure
 echo "1/4 Preparing server bundle..."
-mkdir -p extension-build/server
+mkdir -p extension-build
 
-# Copy server code
-cp -r winscript extension-build/server/
-cp winscript-server.py extension-build/server/
-cp requirements.txt extension-build/server/
+# Copy server code to root of bundle
+cp -r winscript extension-build/
+cp winscript-server.py extension-build/
+cp requirements.txt extension-build/
 
 # Copy manifest and icon
 cp manifest.json extension-build/

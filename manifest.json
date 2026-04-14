@@ -38,14 +38,14 @@
   ],
   "server": {
     "type": "python",
-    "entry_point": "server/winscript-server.py",
+    "entry_point": "winscript-server.py",
     "mcp_config": {
       "command": "${server.python}",
       "args": [
-        "${__dirname}/server/winscript-server.py"
+        "${__dirname}/winscript-server.py"
       ],
       "env": {
-        "PYTHONPATH": "${__dirname}/server"
+        "PYTHONPATH": "${__dirname}"
       }
     }
   },

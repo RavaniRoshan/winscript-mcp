@@ -82,15 +82,14 @@ chmod +x build-extension.sh
 winscript.mcpb (ZIP archive)
 ├── manifest.json          ← Extension metadata and config
 ├── icon.png              ← Extension icon (512x512)
-└── server/               ← MCP server code
-    ├── winscript-server.py   ← Entry point
-    ├── requirements.txt      ← Python dependencies
-    └── winscript/            ← Full server codebase
-        ├── __init__.py
-        ├── server.py
-        ├── tools/
-        ├── core/
-        └── adapters/
+├── winscript-server.py   ← Entry point
+├── requirements.txt      ← Python dependencies
+└── winscript/            ← Full server codebase
+    ├── __init__.py
+    ├── server.py
+    ├── tools/
+    ├── core/
+    └── adapters/
 ```
 
 ---
@@ -110,10 +109,10 @@ winscript.mcpb (ZIP archive)
   },
   "server": {
     "type": "python",
-    "entry_point": "server/winscript-server.py",
+    "entry_point": "winscript-server.py",
     "mcp_config": {
       "command": "${server.python}",
-      "args": ["${__dirname}/server/winscript-server.py"]
+      "args": ["${__dirname}/winscript-server.py"]
     }
   },
   "compatibility": {
