@@ -35,7 +35,19 @@ Not a wrapper. Not a toy. Infrastructure.
 
 ## Quick Start — Get WinScript Running in Claude Desktop
 
-### Option 1: One-Click Installer (Recommended)
+### Option 1: Claude Desktop Extension (Easiest — Coming Soon)
+
+**Once approved in Claude's Extensions directory:**
+
+1. Open Claude Desktop
+2. Go to **Settings → Extensions**
+3. Search for **"WinScript"**
+4. Click **Install**
+5. 59 tools appear — done!
+
+**Until then:** Use Option 2 or 3 below.
+
+### Option 2: One-Click Installer
 
 **Step 1:** Download this repo and double-click `install.bat`:
 ```bash
@@ -46,21 +58,21 @@ Then double-click `install.bat` (or run `python install.py`)
 
 **Step 2:** Restart Claude Desktop
 
-**Step 3:** WinScript appears in Claude's Extensions panel with 59 tools — just like Desktop Commander.
+**Step 3:** WinScript appears in Claude's Extensions panel with 59 tools.
 
-### Option 2: PyPI (One Command)
+### Option 3: PyPI (One Command)
 ```bash
 pip install winscript
 winscript
 ```
 Then configure Claude Desktop manually (see below).
 
-### Option 3: Docker (Isolated)
+### Option 4: Docker (Isolated)
 ```bash
 docker run -v %USERPROFILE%/.winscript:~/.winscript ghcr.io/roshandamm/winscript-mcp:latest
 ```
 
-### Option 4: Direct from Source
+### Option 5: Direct from Source
 ```bash
 git clone https://github.com/RavaniRoshan/winscript-mcp.git
 cd winscript-mcp
@@ -68,7 +80,7 @@ pip install -r requirements.txt
 python winscript-server.py
 ```
 
-All options start an MCP server. The installer (Option 1) auto-configures Claude Desktop for you.
+All options start an MCP server. The Claude Desktop Extension (Option 1) will be the easiest once approved.
 
 ---
 

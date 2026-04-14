@@ -1,0 +1,62 @@
+{
+  "manifest_version": "0.3",
+  "name": "winscript",
+  "display_name": "WinScript",
+  "version": "0.1.0",
+  "description": "AppleScript for Windows. Control any Windows app from Claude — open apps, click buttons, automate Excel/Outlook, manage files, take screenshots.",
+  "long_description": "WinScript is a state-aware, replayable, audited Windows automation server for AI agents. It wraps 4 fragmented Windows automation primitives — UI Automation, COM, Win32, and OCR — into a single MCP server that any agent can call.\n\n**What Claude can do with WinScript:**\n\n- **Open and control any Windows app** — Notepad, Chrome, Excel, Outlook, etc.\n- **Click buttons and type text** in any UI via 5-layer element detection\n- **Automate Excel** — read/write cells, ranges, save files via COM\n- **Send and read Outlook emails** — full COM automation\n- **Take screenshots** — Claude sees your screen\n- **Manage files** — read, write, move, copy, delete\n- **Record and replay workflows** — automate complex multi-step sequences\n- **Semantic intents** — high-level actions like \"open latest Excel file\"\n- **Full audit logging** — every action tracked and searchable\n\n**59 tools across 15 categories.** Not a wrapper. Not a toy. Infrastructure.\n\nBuilt by Roshan Ravani. MIT License.",
+  "author": {
+    "name": "Roshan Ravani",
+    "email": "roshan@example.com",
+    "url": "https://github.com/RavaniRoshan"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/RavaniRoshan/winscript-mcp",
+  "documentation": "https://github.com/RavaniRoshan/winscript-mcp#readme",
+  "support": "https://github.com/RavaniRoshan/winscript-mcp/issues",
+  "repository": "https://github.com/RavaniRoshan/winscript-mcp",
+  "keywords": [
+    "windows",
+    "automation",
+    "desktop",
+    "applescript",
+    "excel",
+    "outlook",
+    "ui-automation",
+    "com-automation",
+    "file-management",
+    "screenshots",
+    "workflow",
+    "mcp"
+  ],
+  "icons": [
+    {
+      "src": "icon.png",
+      "size": 512,
+      "theme": "light"
+    }
+  ],
+  "server": {
+    "type": "python",
+    "entry_point": "server/winscript-server.py",
+    "mcp_config": {
+      "command": "${server.python}",
+      "args": [
+        "${__dirname}/server/winscript-server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "${__dirname}/server"
+      }
+    }
+  },
+  "tools_generated": true,
+  "compatibility": {
+    "platforms": ["win32"],
+    "runtimes": {
+      "python": ">=3.10"
+    }
+  },
+  "privacy_policies": [
+    "https://github.com/RavaniRoshan/winscript-mcp#privacy"
+  ]
+}
