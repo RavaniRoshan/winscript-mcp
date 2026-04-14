@@ -2,10 +2,7 @@
 
 ## For Users
 
-### Add to AI Agent (Easiest)
-👉 https://smithery.ai/server/winscript
-
-### Install via PyPI
+### Install via PyPI (Recommended)
 ```bash
 pip install winscript
 winscript

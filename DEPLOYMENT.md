@@ -7,13 +7,12 @@ Complete guide for deploying WinScript to any environment.
 ## Table of Contents
 
 1. [Quick Comparison](#quick-comparison)
-2. [Option 1: Smithery.ai (Cloud Hosted)](#option-1-smitheryai-cloud-hosted)
-3. [Option 2: PyPI Package](#option-2-pypi-package)
-4. [Option 3: Docker](#option-3-docker)
-5. [Option 4: Direct from Source](#option-4-direct-from-source)
-6. [Connecting MCP Clients](#connecting-mcp-clients)
-7. [Production Considerations](#production-considerations)
-8. [Troubleshooting](#troubleshooting)
+2. [Option 1: PyPI Package](#option-1-pypi-package)
+3. [Option 2: Docker](#option-2-docker)
+4. [Option 3: Direct from Source](#option-3-direct-from-source)
+5. [Connecting MCP Clients](#connecting-mcp-clients)
+6. [Production Considerations](#production-considerations)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -21,44 +20,13 @@ Complete guide for deploying WinScript to any environment.
 
 | Method | Best For | Setup Time | Maintenance |
 |--------|----------|------------|-------------|
-| **Smithery.ai** | AI agent users | 1 click | None (cloud) |
 | **PyPI** | Python developers | 2 minutes | Manual updates |
 | **Docker** | Sysadmins, isolation | 5 minutes | Docker updates |
 | **Source** | Contributors, debugging | 10 minutes | Git pulls |
 
 ---
 
-## Option 1: Smithery.ai (Cloud Hosted)
-
-**Best for:** End users who want zero setup
-
-### Steps:
-
-1. Visit: https://smithery.ai/server/winscript
-2. Click "Add to Claude" (or your MCP client)
-3. Authenticate if prompted
-4. Done! 59 tools appear in your AI client
-
-### Pros:
-- Zero installation
-- No maintenance
-- Works immediately
-- Automatic updates
-
-### Cons:
-- Requires Smithery account
-- Cloud-based (some prefer local-only)
-- Limited to supported MCP clients
-
-### Supported Clients:
-- Claude Desktop
-- Cursor
-- Windsurf
-- Any Smithery-connected MCP client
-
----
-
-## Option 2: PyPI Package
+## Option 1: PyPI Package
 
 **Best for:** Python developers, local control
 
@@ -131,7 +99,7 @@ Edit `.cursor/mcp.json` in your project:
 
 ---
 
-## Option 3: Docker
+## Option 2: Docker
 
 **Best for:** Isolation, production, sysadmins
 
@@ -214,7 +182,7 @@ Data structure:
 
 ---
 
-## Option 4: Direct from Source
+## Option 3: Direct from Source
 
 **Best for:** Contributors, debugging, custom builds
 

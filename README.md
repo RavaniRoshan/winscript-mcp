@@ -18,7 +18,6 @@ Windows 10/11 · Python 3.10+ · MCP Protocol
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Tools](https://img.shields.io/badge/tools-59-purple.svg)](#tools)
 [![PyPI](https://img.shields.io/pypi/v/winscript.svg)](https://pypi.org/project/winscript/)
-[![smithery](https://img.shields.io/badge/Smithery-winscript-blue)](https://smithery.ai/server/winscript)
 
 </div>
 
@@ -38,23 +37,18 @@ Not a wrapper. Not a toy. Infrastructure.
 
 No more `pip install` friction. Pick what works for you:
 
-### Option 1: Smithery.ai (Zero Setup)
-Add WinScript to Claude Desktop, Cursor, or any MCP client in one click:
-
-[![Deploy to Smithery](https://smithery.ai/deploy.svg)](https://smithery.ai/server/winscript)
-
-### Option 2: PyPI (One Command)
+### Option 1: PyPI (One Command)
 ```bash
 pip install winscript
 winscript
 ```
 
-### Option 3: Docker (Isolated)
+### Option 2: Docker (Isolated)
 ```bash
 docker run -v %USERPROFILE%/.winscript:~/.winscript ghcr.io/roshandamm/winscript-mcp:latest
 ```
 
-### Option 4: Direct Download (No Install)
+### Option 3: Direct Download (No Install)
 ```bash
 git clone https://github.com/roshandamm/winscript-mcp.git
 cd winscript-mcp
@@ -95,12 +89,7 @@ pip install winscript
 ```
 Then run: `winscript` or `python -m winscript.server`
 
-### Option 2: Use Smithery.ai (Recommended for AI Agents)
-1. Go to [smithery.ai/server/winscript](https://smithery.ai/server/winscript)
-2. Click "Add to Claude" (or your MCP client)
-3. Done — no local setup needed
-
-### Option 3: Run with Docker
+### Option 2: Run with Docker
 ```bash
 # Pull and run
 docker run -d --name winscript \
@@ -112,7 +101,7 @@ docker build -t winscript:latest .
 docker run -d --name winscript -v %USERPROFILE%/.winscript:~/.winscript winscript:latest
 ```
 
-### Option 4: Run from Source (No Install)
+### Option 3: Run from Source (No Install)
 ```bash
 git clone https://github.com/roshandamm/winscript-mcp.git
 cd winscript-mcp
