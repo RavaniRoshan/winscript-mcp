@@ -1,0 +1,21 @@
+# Include important files in source distribution
+include README.md
+include LICENSE
+include requirements.txt
+include DEPLOYMENT.md
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude *.so
+global-exclude .git
+global-exclude .pytest_cache
+global-exclude venv
+global-exclude .venv
+global-exclude env
+global-exclude .env
+global-exclude .vscode
+global-exclude .idea
+global-exclude *.egg-info
+global-exclude dist
+global-exclude build

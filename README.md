@@ -11,12 +11,14 @@
 
 **AppleScript for Windows. Built for AI agents.**
 
-`pip install winscript` · Windows 10/11 · Python 3.10+ · MCP Protocol
+Windows 10/11 · Python 3.10+ · MCP Protocol
 
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
 [![MCP](https://img.shields.io/badge/protocol-MCP-orange.svg)](https://modelcontextprotocol.io)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Tools](https://img.shields.io/badge/tools-59-purple.svg)](#tools)
+[![PyPI](https://img.shields.io/pypi/v/winscript.svg)](https://pypi.org/project/winscript/)
+[![smithery](https://img.shields.io/badge/Smithery-winscript-blue)](https://smithery.ai/server/winscript)
 
 </div>
 
@@ -29,6 +31,37 @@ Until now.
 WinScript is a **state-aware, replayable, audited** Windows automation server for AI agents. It wraps 4 fragmented Windows automation primitives — UI Automation, COM, Win32, and OCR — into a single MCP server that any agent can call.
 
 Not a wrapper. Not a toy. Infrastructure.
+
+---
+
+## Quick Start — Choose Your Deployment
+
+No more `pip install` friction. Pick what works for you:
+
+### Option 1: Smithery.ai (Zero Setup)
+Add WinScript to Claude Desktop, Cursor, or any MCP client in one click:
+
+[![Deploy to Smithery](https://smithery.ai/deploy.svg)](https://smithery.ai/server/winscript)
+
+### Option 2: PyPI (One Command)
+```bash
+pip install winscript
+winscript
+```
+
+### Option 3: Docker (Isolated)
+```bash
+docker run -v %USERPROFILE%/.winscript:~/.winscript ghcr.io/roshandamm/winscript-mcp:latest
+```
+
+### Option 4: Direct Download (No Install)
+```bash
+git clone https://github.com/roshandamm/winscript-mcp.git
+cd winscript-mcp
+python winscript-server.py
+```
+
+All options start an MCP server that any AI agent can connect to.
 
 ---
 
@@ -54,17 +87,45 @@ You don't just know what you did. You know what changed.
 
 ---
 
-## Install
+## Detailed Installation
 
+### Option 1: Install from PyPI
 ```bash
 pip install winscript
 ```
+Then run: `winscript` or `python -m winscript.server`
 
-For OCR fallback (Layer 4 element detection):
+### Option 2: Use Smithery.ai (Recommended for AI Agents)
+1. Go to [smithery.ai/server/winscript](https://smithery.ai/server/winscript)
+2. Click "Add to Claude" (or your MCP client)
+3. Done — no local setup needed
+
+### Option 3: Run with Docker
+```bash
+# Pull and run
+docker run -d --name winscript \
+  -v %USERPROFILE%/.winscript:~/.winscript \
+  ghcr.io/roshandamm/winscript-mcp:latest
+
+# Or build locally
+docker build -t winscript:latest .
+docker run -d --name winscript -v %USERPROFILE%/.winscript:~/.winscript winscript:latest
+```
+
+### Option 4: Run from Source (No Install)
+```bash
+git clone https://github.com/roshandamm/winscript-mcp.git
+cd winscript-mcp
+pip install -r requirements.txt
+python winscript-server.py
+```
+
+### Optional: OCR Fallback (Layer 4)
+For better element detection in broken UI trees:
 ```bash
 # Install Tesseract: https://github.com/tesseract-ocr/tesseract
-# Then:
 pip install pytesseract
+```
 ```
 
 ---

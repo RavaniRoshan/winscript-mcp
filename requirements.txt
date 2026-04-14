@@ -3,5 +3,6 @@ pywinauto
 pywin32
 uiautomation
 mss
-Pillowpytesseract
+Pillow
+pytesseract
 pyautogui

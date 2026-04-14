@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.egg-info
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# WinScript runtime data (don't commit user data)
+~/.winscript/
+*.db
+workflows/*.json
+
+# Distribution
+*.whl
+*.tar.gz
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+.coverage.*
+
+# Jupyter
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyright
+.pyrightconfig.json
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp

@@ -351,6 +351,10 @@ def cleanup_orphaned_com_processes():
     except Exception:
         pass
 
-if __name__ == "__main__":
+def main():
+    """Entry point for CLI: python -m winscript.server or winscript command"""
     cleanup_orphaned_com_processes()
     mcp.run()
+
+if __name__ == "__main__":
+    main()

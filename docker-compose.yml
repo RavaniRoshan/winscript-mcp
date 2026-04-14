@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  winscript:
+    build: .
+    image: winscript:latest
+    container_name: winscript-mcp
+    restart: unless-stopped
+    volumes:
+      # Mount Windows user directory for persistent data
+      # On Windows: - .\winscript-data:C:\Users\Container\.winscript
+      # On Linux: - ./winscript-data:/root/.winscript
+      - winscript_data:/root/.winscript
+    environment:
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+    # For MCP stdio transport, we don't expose ports
+    # The container communicates via stdin/stdout
+
+volumes:
+  winscript_data:
+    driver: local
