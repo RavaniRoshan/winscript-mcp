@@ -16,8 +16,8 @@ def check_dependencies():
     """Check if required dependencies are installed."""
     required = [
         "fastmcp",
-        "pywinauto",
-        "pywin32", 
+        "pywinauto", 
+        "pywin32",
         "uiautomation",
         "mss",
         "PIL",  # Pillow
@@ -31,17 +31,12 @@ def check_dependencies():
             missing.append(pkg)
     
     if missing:
-        print(f"Missing dependencies: {', '.join(missing)}")
-        print("Installing automatically...")
         try:
             subprocess.check_call([
                 sys.executable, "-m", "pip", "install", "-r", 
                 str(Path(__file__).parent / "requirements.txt")
-            ])
-            print("Dependencies installed successfully!")
-        except subprocess.CalledProcessError as e:
-            print(f"ERROR: Failed to install dependencies: {e}")
-            print(f"\nPlease run manually: pip install -r requirements.txt")
+            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError:
             sys.exit(1)
 
 def main():

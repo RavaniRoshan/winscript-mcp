@@ -105,11 +105,12 @@ def configure_claude_desktop():
     if "mcpServers" not in config:
         config["mcpServers"] = {}
     
-    # Add WinScript
+    # Add WinScript - use script path instead of module to ensure PYTHONPATH works
+    project_dir = Path(__file__).parent.absolute()
     winscript_config = {
         "command": sys.executable,
-        "args": ["-m", "winscript.server"],
-        "env": {}
+        "args": [str(project_dir / "winscript-server.py")],
+        "env": {"PYTHONPATH": str(project_dir)}
     }
     
     if config["mcpServers"].get("winscript") == winscript_config:

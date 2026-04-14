@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from fastmcp import FastMCP
 import functools
 import time
@@ -69,7 +70,9 @@ def audited(tool_name: str, fn):
         except Exception as e:
             error = str(e)
             result = f"ERROR: {error}"
-            raise
+            # FIXED: Removed "raise" to prevent server disconnection
+            # Return error gracefully instead of propagating exception
+            pass
         finally:
             duration_ms = (time.time() - start) * 1000
             log_action(
@@ -344,17 +347,30 @@ mcp.tool()(what_files_have_i_opened)
 mcp.tool()(what_did_i_do)
 
 def cleanup_orphaned_com_processes():
-    """Kill orphaned Excel and Outlook processes on server startup to prevent COM object leaks."""
+    """Kill orphaned Excel and Outlook processes on server startup to prevent COM object leaks.
+    FIXED: Only kill processes with no windows (truly orphaned), not active user sessions."""
     try:
-        subprocess.run(["taskkill", "/F", "/IM", "EXCEL.EXE", "/T"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run(["taskkill", "/F", "/IM", "OUTLOOK.EXE", "/T"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except Exception:
-        pass
+        # Use /FI "WINDOWS eq 0" to filter processes without visible windows (truly orphaned)
+        subprocess.run(["taskkill", "/F", "/FI", "WINDOWS eq 0", "/IM", "EXCEL.EXE", "/T"],
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+        subprocess.run(["taskkill", "/F", "/FI", "WINDOWS eq 0", "/IM", "OUTLOOK.EXE", "/T"],
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+    except Exception as e:
+        print(f"[WARNING] COM cleanup skipped: {e}", flush=True)
 
 def main():
     """Entry point for CLI: python -m winscript.server or winscript command"""
     cleanup_orphaned_com_processes()
-    mcp.run()
+    try:
+        print("[INFO] Starting WinScript MCP Server...", flush=True)
+        print("[INFO] Server ready - waiting for MCP connections", flush=True)
+        mcp.run()
+    except KeyboardInterrupt:
+        print("[INFO] Server stopped by user", flush=True)
+    except Exception as e:
+        print(f"[FATAL] Server error: {e}", file=sys.stderr, flush=True)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
 
 if __name__ == "__main__":
     main()
