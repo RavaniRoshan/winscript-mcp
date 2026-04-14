@@ -33,29 +33,42 @@ Not a wrapper. Not a toy. Infrastructure.
 
 ---
 
-## Quick Start — Choose Your Deployment
+## Quick Start — Get WinScript Running in Claude Desktop
 
-No more `pip install` friction. Pick what works for you:
+### Option 1: One-Click Installer (Recommended)
 
-### Option 1: PyPI (One Command)
+**Step 1:** Download this repo and double-click `install.bat`:
+```bash
+git clone https://github.com/RavaniRoshan/winscript-mcp.git
+cd winscript-mcp
+```
+Then double-click `install.bat` (or run `python install.py`)
+
+**Step 2:** Restart Claude Desktop
+
+**Step 3:** WinScript appears in Claude's Extensions panel with 59 tools — just like Desktop Commander.
+
+### Option 2: PyPI (One Command)
 ```bash
 pip install winscript
 winscript
 ```
+Then configure Claude Desktop manually (see below).
 
-### Option 2: Docker (Isolated)
+### Option 3: Docker (Isolated)
 ```bash
 docker run -v %USERPROFILE%/.winscript:~/.winscript ghcr.io/roshandamm/winscript-mcp:latest
 ```
 
-### Option 3: Direct Download (No Install)
+### Option 4: Direct from Source
 ```bash
-git clone https://github.com/roshandamm/winscript-mcp.git
+git clone https://github.com/RavaniRoshan/winscript-mcp.git
 cd winscript-mcp
+pip install -r requirements.txt
 python winscript-server.py
 ```
 
-All options start an MCP server that any AI agent can connect to.
+All options start an MCP server. The installer (Option 1) auto-configures Claude Desktop for you.
 
 ---
 
@@ -115,11 +128,61 @@ For better element detection in broken UI trees:
 # Install Tesseract: https://github.com/tesseract-ocr/tesseract
 pip install pytesseract
 ```
+
+---
+
+## How WinScript Appears in Claude Desktop
+
+After running the installer and restarting Claude Desktop, WinScript appears in Claude's Extensions panel just like Desktop Commander:
+
 ```
+┌─────────────────────────────────────────────┐
+│  WinScript                                   │
+│  AppleScript for Windows. Built for AI      │
+│  agents. Control any Windows app from Claude │
+│  Enabled                                     │
+│                                              │
+│  Developed by Roshan Ravani                  │
+│                                              │
+│  Tools                    59                 │
+│  open_app                                   │
+│  close_app                                  │
+│  click                                      │
+│  type_text                                  │
+│  excel_read_cell                            │
+│  outlook_send_email                         │
+│  take_screenshot                            │
+│  +53 more                                   │
+│                                              │
+│  Requirements                                │
+│  All requirements met                        │
+│                                              │
+│  Details                                     │
+│  Version         0.1.0                      │
+│  License         MIT                         │
+│  Author          Roshan Ravani              │
+└─────────────────────────────────────────────┘
+```
+
+**Claude can now:**
+- Open and control any Windows app
+- Click buttons and type in UIs
+- Read/write Excel files via COM
+- Send Outlook emails
+- Take screenshots
+- Manage files and folders
+- Record and replay workflows
+- And 50+ more actions
+
+All through natural language — no human interaction needed.
 
 ---
 
 ## Wire into Claude Desktop
+
+**The easy way:** Run `install.bat` — it configures everything for you.
+
+**The manual way:** Edit `%APPDATA%\Claude\claude_desktop_config.json`:
 
 ```json
 {

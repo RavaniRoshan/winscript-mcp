@@ -1,48 +1,52 @@
 @echo off
-REM WinScript MCP Server - Windows Quick Start
-REM Run this script to install and start WinScript without manual setup
+REM WinScript MCP Server - Quick Start Menu
+REM Run this to see installation/start options
 
 echo.
 echo ========================================
-echo   WinScript MCP Server Installer
+echo   WinScript MCP Server
+echo   AppleScript for Windows
 echo ========================================
 echo.
+echo  What do you want to do?
+echo.
+echo  1. Install for Claude Desktop (recommended)
+echo  2. Start server only
+echo  3. Exit
+echo.
 
-REM Check if Python is installed
-python --version >nul 2>&1
+choice /C 123 /M "Select option"
+
+if errorlevel 3 goto end
+if errorlevel 2 goto server
+if errorlevel 1 goto install
+
+:install
+echo.
+echo Running Claude Desktop installer...
+echo.
+python install.py
+goto end
+
+:server
+echo.
+echo [1/2] Checking dependencies...
+python -c "from winscript.server import mcp" 2>nul
 if %errorlevel% neq 0 (
-    echo ERROR: Python 3.10+ is not installed.
-    echo Please install Python from https://www.python.org/downloads/
-    pause
-    exit /b 1
+    echo Installing dependencies...
+    pip install -r requirements.txt
 )
 
-echo [1/3] Checking Python version...
-python -c "import sys; exit(0 if sys.version_info >= (3, 10) else 1)"
-if %errorlevel% neq 0 (
-    echo ERROR: Python 3.10+ is required. You have:
-    python --version
-    pause
-    exit /b 1
-)
-echo OK
-
 echo.
-echo [2/3] Installing dependencies...
-pip install -r requirements.txt
-if %errorlevel% neq 0 (
-    echo ERROR: Failed to install dependencies.
-    echo Try running: pip install --upgrade pip
-    pause
-    exit /b 1
-)
-echo OK
-
+echo [2/2] Starting WinScript MCP Server...
 echo.
-echo [3/3] Starting WinScript MCP Server...
-echo.
-echo Server is starting. Connect your MCP client to it.
-echo Press Ctrl+C to stop the server.
+echo Server is running. Connect your MCP client.
+echo Press Ctrl+C to stop.
 echo.
 
 python -m winscript.server
+
+:end
+echo.
+echo Done.
+pause
